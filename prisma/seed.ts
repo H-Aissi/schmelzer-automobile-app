@@ -1,0 +1,407 @@
+// T-002 — JOB-002
+import { PrismaClient } from '@prisma/client';
+import bcryptjs from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+const CARS = [
+  {
+    id: 'clunt1234000008mi3h5z6abc',
+    title: 'Volkswagen Golf VII 2.0 TDI GTI DSG',
+    make: 'Volkswagen',
+    makeNormalized: 'volkswagen',
+    model: 'Golf VII 2.0 TDI GTI',
+    year: 2021,
+    price: 24950,
+    mileage: 45000,
+    fuelType: 'DIESEL',
+    transmission: 'AUTOMATIK',
+    power: 184,
+    color: 'Deep Black Perleffekt',
+    description: 'Sehr gepflegter Golf VII aus erster Hand. Scheckheftgepflegt bei VW, 8-fach bereift, virtuelles Cockpit und Navigationssystem Discover Pro.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000108mi3h5z6def',
+    title: 'BMW 320d Touring M Sport',
+    make: 'BMW',
+    makeNormalized: 'bmw',
+    model: '3er 320d Touring',
+    year: 2022,
+    price: 38900,
+    mileage: 29000,
+    fuelType: 'DIESEL',
+    transmission: 'AUTOMATIK',
+    power: 190,
+    color: 'Estorilblau',
+    description: 'Sportlicher Kombi mit M-Sportpaket ab Werk. Panorama-Glasdach, Harman/Kardon Soundsystem, Head-Up Display und Laserlicht.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000208mi3h5z6ghi',
+    title: 'Audi A4 Avant 45 TFSI quattro',
+    make: 'Audi',
+    makeNormalized: 'audi',
+    model: 'A4 Avant',
+    year: 2020,
+    price: 31500,
+    mileage: 62000,
+    fuelType: 'BENZIN',
+    transmission: 'AUTOMATIK',
+    power: 245,
+    color: 'Ibisweiß',
+    description: 'Zuverlässiger Avant mit permanentem Allradantrieb (quattro). Matrix-LED Scheinwerfer, Sportsitze mit Sitzheizung und Einparkhilfe Plus.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1606016159991-dfe4f974be5c?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000308mi3h5z6jkl',
+    title: 'Mercedes-Benz C 200 Coupé AMG Line',
+    make: 'Mercedes-Benz',
+    makeNormalized: 'mercedes-benz',
+    model: 'C-Klasse Coupé',
+    year: 2019,
+    price: 29900,
+    mileage: 55000,
+    fuelType: 'BENZIN',
+    transmission: 'AUTOMATIK',
+    power: 184,
+    color: 'Obsidianschwarz',
+    description: 'Traumhaftes Coupé mit aggressiver AMG-Optik. Rückfahrkamera, Ambientebeleuchtung (64 Farben) und Diamantgrill.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000408mi3h5z6mno',
+    title: 'Tesla Model 3 Long Range AWD',
+    make: 'Tesla',
+    makeNormalized: 'tesla',
+    model: 'Model 3',
+    year: 2023,
+    price: 42000,
+    mileage: 18500,
+    fuelType: 'ELEKTRO',
+    transmission: 'AUTOMATIK',
+    power: 498,
+    color: 'Solid Black',
+    description: 'Allradantrieb mit maximaler Reichweite. Volles Potenzial für autonomes Fahren (FSD) aktiv, Premium-Innenraum in Weiß.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000508mi3h5z6pqr',
+    title: 'Porsche 911 Carrera S (992)',
+    make: 'Porsche',
+    makeNormalized: 'porsche',
+    model: '911 Carrera S',
+    year: 2022,
+    price: 128500,
+    mileage: 12000,
+    fuelType: 'BENZIN',
+    transmission: 'AUTOMATIK',
+    power: 450,
+    color: 'GT-Silber Metallic',
+    description: 'Absoluter Traumzustand, unfallfrei und nur im Sommer gefahren. Sport-Auspuffanlage, Chrono Paket und BOSE Surround Sound.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000608mi3h5z6stu',
+    title: 'Ford Mustang GT Fastback 5.0 V8',
+    make: 'Ford',
+    makeNormalized: 'ford',
+    model: 'Mustang GT',
+    year: 2018,
+    price: 36400,
+    mileage: 48000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 450,
+    color: 'Race-Rot',
+    description: 'Echter V8-Klassiker mit knackiger Handschaltung. Klappenauspuffanlage ab Werk für genialen Sound. Leder-Sportsitze.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1612462551868-f6825a0a77b5?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000708mi3h5z6vwx',
+    title: 'Mini Cooper S 3-Türer',
+    make: 'Mini',
+    makeNormalized: 'mini',
+    model: 'Cooper S',
+    year: 2021,
+    price: 22800,
+    mileage: 33000,
+    fuelType: 'BENZIN',
+    transmission: 'AUTOMATIK',
+    power: 178,
+    color: 'British Racing Green',
+    description: 'Go-Kart-Feeling pur! Panorama-Dach, Union-Jack Rückleuchten, Apple CarPlay kabellos. Sehr sparsam und spritzig.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1619362280116-bdf36750f00f?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000808mi3h5z6yz1',
+    title: 'Hyundai i30 N Performance',
+    make: 'Hyundai',
+    makeNormalized: 'hyundai',
+    model: 'i30 N Performance',
+    year: 2020,
+    price: 26900,
+    mileage: 41000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 275,
+    color: 'Performance Blue',
+    description: 'Hot Hatch par excellence. Aus zweiter Hand, komplett im Originalzustand. Elektronische Differenzialsperre, Klappenauspuff.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1627454818229-ec9860b7e2cc?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234000908mi3h5z6yz2',
+    title: 'Toyota RAV4 2.5 Hybrid AWD',
+    make: 'Toyota',
+    makeNormalized: 'toyota',
+    model: 'RAV4 Hybrid',
+    year: 2022,
+    price: 35990,
+    mileage: 22000,
+    fuelType: 'HYBRID',
+    transmission: 'AUTOMATIK',
+    power: 222,
+    color: 'Marlingrau Metallic',
+    description: 'Perfektes Familien-SUV mit hocheffizientem Hybridantrieb. Toyota Safety Sense, Totwinkel-Assistent, Lenkradheizung.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001008mi3h5z6yz3',
+    title: 'Fiat 500e Icon Elektro',
+    make: 'Fiat',
+    makeNormalized: 'fiat',
+    model: '500e',
+    year: 2023,
+    price: 19800,
+    mileage: 9500,
+    fuelType: 'ELEKTRO',
+    transmission: 'AUTOMATIK',
+    power: 118,
+    color: 'Ocean Grün',
+    description: 'Schicker City-Flitzer mit der großen 42 kWh Batterie. Schnellladefunktion (85 kW), 10,25-Zoll Infotainment und Keyless Entry.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001108mi3h5z6yz4',
+    title: 'Skoda Octavia Combi 2.0 TDI RS',
+    make: 'Skoda',
+    makeNormalized: 'skoda',
+    model: 'Octavia Combi RS',
+    year: 2021,
+    price: 29400,
+    mileage: 58000,
+    fuelType: 'DIESEL',
+    transmission: 'AUTOMATIK',
+    power: 200,
+    color: 'Stahl-Grau',
+    description: 'Der König der Pendler-Kombis. RS-Sportsitze mit Alcantara, Matrix-LED, ACC Abstandstempomat, elektrische Heckklappe.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1603386329225-868f9b1ee6c9?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001208mi3h5z6yz5',
+    title: 'Mazda MX-5 Roadster 2.0 Skyactiv-G',
+    make: 'Mazda',
+    makeNormalized: 'mazda',
+    model: 'MX-5 Roadster',
+    year: 2019,
+    price: 21500,
+    mileage: 35000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 184,
+    color: 'Magmarot Metallic',
+    description: 'Puristischer Hecktriebler. Bose Sound-System, Bilstein Sportfahrwerk ab Werk, Apple CarPlay und Android Auto nachgerüstet.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001308mi3h5z6yz6',
+    title: 'Volvo XC60 B4 Mild-Hybrid Inscription',
+    make: 'Volvo',
+    makeNormalized: 'volvo',
+    model: 'XC60 B4',
+    year: 2022,
+    price: 44900,
+    mileage: 39000,
+    fuelType: 'HYBRID',
+    transmission: 'AUTOMATIK',
+    power: 197,
+    color: 'Crystal Weiß Perleffekt',
+    description: 'Sicherheit und Luxus pur. Feinstes Nappaleder in Anthrazit, Google Maps Infotainment-System, Pilot Assist (Teilautonomes Fahren).',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1494976388531-d1058094e2bd?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001408mi3h5z6yz7',
+    title: 'Renault Clio TCe 90 Experience',
+    make: 'Renault',
+    makeNormalized: 'renault',
+    model: 'Clio TCe',
+    year: 2021,
+    price: 12900,
+    mileage: 28000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 91,
+    color: 'Iron-Blau',
+    description: 'Günstiger und moderner Kleinwagen. Spurhalteassistent, Verkehrszeichenerkennung, Touchscreen-Radio mit Bluetooth-Freisprecheinrichtung.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001508mi3h5z6yz8',
+    title: 'Kia EV6 GT-Line AWD Long Range',
+    make: 'Kia',
+    makeNormalized: 'kia',
+    model: 'EV6 GT-Line',
+    year: 2023,
+    price: 49500,
+    mileage: 14000,
+    fuelType: 'ELEKTRO',
+    transmission: 'AUTOMATIK',
+    power: 325,
+    color: 'Moonscape Mattgrau',
+    description: '800V Ultra-Schnellladearchitektur (10-80% in 18 Min). Head-up Display mit Augmented Reality, Meridian Soundsystem, belüftete Sitze.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001608mi3h5z6yz9',
+    title: 'Ford Fiesta 1.0 EcoBoost ST-Line',
+    make: 'Ford',
+    makeNormalized: 'ford',
+    model: 'Fiesta ST-Line',
+    year: 2020,
+    price: 14800,
+    mileage: 42000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 125,
+    color: 'Frost-Weiß',
+    description: 'Sportliche Optik dank ST-Line Paket. Beheizbare Frontscheibe, Klimaautomatik, Einparkhilfe hinten, Android Auto & Apple CarPlay.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001708mi3h5z6yza',
+    title: 'Land Rover Range Rover Velar D300 SE',
+    make: 'Land Rover',
+    makeNormalized: 'land rover',
+    model: 'Range Rover Velar',
+    year: 2021,
+    price: 59900,
+    mileage: 52000,
+    fuelType: 'DIESEL',
+    transmission: 'AUTOMATIK',
+    power: 300,
+    color: 'Eiger Gray',
+    description: 'Luxus-SUV mit starkem 6-Zylinder Diesel. Luftfederung, 20-Zoll Alufelgen, ausfahrbare Türgriffe, Panoramadach und volldigitales Cockpit.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001808mi3h5z6yzb',
+    title: 'Opel Corsa 1.2 Elegance',
+    make: 'Opel',
+    makeNormalized: 'opel',
+    model: 'Corsa Elegance',
+    year: 2022,
+    price: 15400,
+    mileage: 21000,
+    fuelType: 'BENZIN',
+    transmission: 'MANUELL',
+    power: 101,
+    color: 'Quarz Silber',
+    description: 'Junger Gebrauchter aus erster Hand. LED-Scheinwerfer, Sitzheizung, Lenkradheizung, Müdigkeitserkennung und Rückfahrkamera.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+  {
+    id: 'clunt1234001908mi3h5z6yzc',
+    title: 'Porsche Taycan 4S',
+    make: 'Porsche',
+    makeNormalized: 'porsche',
+    model: 'Taycan 4S',
+    year: 2023,
+    price: 89000,
+    mileage: 19000,
+    fuelType: 'ELEKTRO',
+    transmission: 'AUTOMATIK',
+    power: 530,
+    color: 'Mambagrün Metallic',
+    description: 'Performance-Batterie Plus, Beifahrerdisplay, Hinterachslenkung, Sport Chrono Paket und 21-Zoll Mission E Design Räder.',
+    status: 'ACTIVE',
+    imageUrl: 'https://images.unsplash.com/photo-1611245555447-e8025b6577a8?auto=format&fit=crop&w=1200&h=800&q=80',
+  },
+] as const;
+
+async function main() {
+  // ── Admin-User ──────────────────────────────────────────────────────────────
+  const email = process.env.SEED_ADMIN_EMAIL;
+  const password = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error(
+      'SEED_ADMIN_EMAIL und SEED_ADMIN_PASSWORD müssen in .env.local gesetzt sein.',
+    );
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (!existing) {
+    const passwordHash = await bcryptjs.hash(password, 12);
+    await prisma.user.create({ data: { email, passwordHash } });
+    console.log(`✓ Admin-User ${email} angelegt.`);
+  } else {
+    console.log(`– Admin-User ${email} existiert bereits, übersprungen.`);
+  }
+
+  // ── Fahrzeug-Daten ──────────────────────────────────────────────────────────
+  let created = 0;
+  let skipped = 0;
+
+  for (const car of CARS) {
+    const { imageUrl, ...carData } = car;
+
+    const existingCar = await prisma.car.findUnique({ where: { id: carData.id } });
+    if (existingCar) {
+      skipped++;
+      continue;
+    }
+
+    await prisma.car.create({
+      data: {
+        ...carData,
+        images: {
+          create: {
+            url: imageUrl,
+            sortOrder: 0,
+          },
+        },
+      },
+    });
+    created++;
+  }
+
+  console.log(`✓ Fahrzeuge: ${created} angelegt, ${skipped} übersprungen.`);
+}
+
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(() => {
+    prisma.$disconnect();
+  });
