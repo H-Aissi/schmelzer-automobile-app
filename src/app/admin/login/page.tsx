@@ -15,6 +15,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const [credentialError, setCredentialError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -96,13 +97,37 @@ export default function AdminLoginPage() {
 
               <div className="field">
                 <label className="label">Passwort</label>
-                <input
-                  className={'input' + (errors.password ? ' input-err' : '')}
-                  type="password"
-                  autoComplete="current-password"
-                  disabled={isSubmitting}
-                  {...register('password')}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className={'input' + (errors.password ? ' input-err' : '')}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    disabled={isSubmitting}
+                    style={{ paddingRight: 44 }}
+                    {...register('password')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    disabled={isSubmitting}
+                    aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                    style={{
+                      position: 'absolute',
+                      right: 12,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      color: 'var(--ink-3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+                  </button>
+                </div>
                 {errors.password && <div className="err-text">{errors.password.message}</div>}
               </div>
 
